@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 func channelBlocking() {
 	ch := make(chan string) // Make a channel that receives strings
@@ -61,4 +64,48 @@ func channelLooping() {
 	for s := range ch {
 		fmt.Println(s)
 	}
+}
+
+func incrementer() func() int {
+	i := 0
+	return func() int {
+		i++
+		return i
+	}
+}
+
+func incrementerSafe() func() int {
+	i := 0
+	var m sync.Mutex
+	return func() int {
+		m.Lock()
+		i++
+		m.Unlock()
+		return i
+	}
+}
+
+func multipleIncrementing() {
+	increment := incrementerSafe()
+	times := 1000000
+	val := 0
+	buffer := make(chan string, 2)
+
+	go func() {
+		for i := 0; i < times; i++ {
+			val = increment()
+		}
+		buffer <- "done"
+	}()
+
+	go func() {
+		for i := 0; i < times; i++ {
+			val = increment()
+		}
+		buffer <- "done"
+	}()
+
+	<-buffer
+
+	fmt.Println(val)
 }
