@@ -1,4 +1,4 @@
-package main
+package references
 
 type A struct {
 	Afield int
