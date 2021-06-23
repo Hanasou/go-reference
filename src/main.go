@@ -21,5 +21,5 @@ func structEmbedding() {
 }
 
 func main() {
-	multipleIncrementing()
+	channelLooping()
 }
